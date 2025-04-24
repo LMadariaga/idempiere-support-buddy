@@ -1,15 +1,16 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import KnowledgeBaseAdmin from '@/components/KnowledgeBaseAdmin';
 import ChatInterface from '@/components/ChatInterface';
+import AdminRegistration from '@/components/AdminRegistration';
 import { KnowledgeEntry } from '@/types/support';
 
 const SupportAgent: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
+  const [showRegistration, setShowRegistration] = useState(false);
   const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeEntry[]>([
     {
       id: '1',
@@ -29,8 +30,6 @@ const SupportAgent: React.FC = () => {
   ]);
 
   const verifyAdmin = () => {
-    // En una implementación real, esto debería ser un proceso de autenticación seguro
-    // usando hash, salt, etc. y posiblemente integrado con un servicio de auth
     if (adminPassword === 'admin123') {
       setIsAdmin(true);
       return true;
@@ -40,12 +39,10 @@ const SupportAgent: React.FC = () => {
 
   const handleAddUpdateEntry = (entry: KnowledgeEntry) => {
     if (entry.id) {
-      // Actualizar entrada existente
       setKnowledgeBase(knowledgeBase.map(item => 
         item.id === entry.id ? entry : item
       ));
     } else {
-      // Añadir nueva entrada
       const newEntry = {
         ...entry,
         id: Date.now().toString()
@@ -71,14 +68,37 @@ const SupportAgent: React.FC = () => {
               <DialogTitle>Acceso de Administrador</DialogTitle>
             </DialogHeader>
             {!isAdmin ? (
-              <div className="flex flex-col gap-4 mt-4">
-                <Input
-                  type="password"
-                  placeholder="Contraseña de administrador"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                />
-                <Button onClick={verifyAdmin}>Ingresar</Button>
+              <div className="space-y-4">
+                {!showRegistration ? (
+                  <>
+                    <Input
+                      type="password"
+                      placeholder="Contraseña de administrador"
+                      value={adminPassword}
+                      onChange={(e) => setAdminPassword(e.target.value)}
+                    />
+                    <div className="flex flex-col gap-2">
+                      <Button onClick={verifyAdmin}>Ingresar</Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowRegistration(true)}
+                      >
+                        Registrar Nuevo Administrador
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-4">
+                    <AdminRegistration />
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowRegistration(false)}
+                      className="w-full"
+                    >
+                      Volver al Login
+                    </Button>
+                  </div>
+                )}
               </div>
             ) : (
               <KnowledgeBaseAdmin 
